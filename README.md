@@ -1,199 +1,100 @@
-# 🤖 Autonomous AI Research Agent (Rust + Rig)
+# 🤖 Autonomous AI Research Agent
+> **High-Performance, Local-First AI Agent built with Rust, Rig, and Ollama.**
 
-A high-performance, local-first AI Research Agent built with **Rust**. This agent leverages the **Rig** framework and **Ollama** to perform deep web research, synthesize information, and provide structured reports—all from your terminal.
-
-![Rust](https://img.shields.io/badge/language-Rust-orange.svg)
-![LLM](https://img.shields.io/badge/LLM-Llama_3.2-blue.svg)
-![Framework](https://img.shields.io/badge/Framework-Rig-green.svg)
-
----
-
-## 🚀 Overview
-
-This project goes beyond simple LLM wrappers. It implements a true **Agentic Workflow** capable of:
-- **Autonomous Web Searching:** Using a custom-built scraper for DuckDuckGo.
-- **Multi-Turn Reasoning:** The agent can iterate up to 5 times to refine its research.
-- **Smart Routing:** Optimized handling for math and basic greetings to save compute.
-- **Local-First Privacy:** Runs entirely on your machine using Ollama.
-
-## 🛠️ Tech Stack
-
-- **Core:** [Rust](https://www.rust-lang.org/) (Safety & Performance)
-- **Agent Framework:** [Rig](https://github.com/0xPlayground/rig)
-- **Inference Engine:** [Ollama](https://ollama.ai/) (Llama 3.2)
-- **Async Runtime:** [Tokio](https://tokio.rs/)
-- **CLI Power:** [Clap](https://docs.rs/clap/latest/clap/)
-- **Logging & Trace:** [Tracing](https://docs.rs/tracing/latest/tracing/)
+[![Rust](https://img.shields.io/badge/language-Rust-orange.svg)](https://www.rust-lang.org/)
+[![Framework](https://img.shields.io/badge/Framework-Rig-green.svg)](https://github.com/0xPlayground/rig)
+[![Inference](https://img.shields.io/badge/Inference-Ollama-blue.svg)](https://ollama.ai/)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 ---
 
-## 🏗️ Architecture
+## 🌟 Overview
+This isn't just another LLM wrapper. It's a full **Agentic Workflow** that thinks, searches, and synthesizes.
 
-The project is designed with a modular architecture for scalability:
-- `tools/`: Specialized scrapers and search utilities with built-in rate limiting.
-- `agent/`: High-level logic for the Research Agent and Tool integration.
-- `config/`: Centralized configuration management with `.env` and CLI overrides.
-- `main.rs`: Robust entry point with structured error handling and logging.
+* **🔍 Autonomous Research:** Custom scraper for real-time DuckDuckGo data.
+* **🧠 Multi-Turn Reasoning:** Up to 5 autonomous iterations to refine findings.
+* **⚡ Smart Routing:** Instant handling for math & greetings (zero-token waste).
+* **🛡️ Local-First:** 100% privacy. Your data never leaves your machine.
 
-🚀 Quick Start
-Prerequisites
-Install Rust (if not already installed):
+---
 
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-Install Ollama:
+## 🛠️ Tech Stack & Architecture
 
-Visit ollama.ai and follow installation instructions
-Or on Linux: curl -fsSL https://ollama.com/install.sh | sh
-Pull a model:
+| Component | Technology | Role |
+| :--- | :--- | :--- |
+| **Language** | **Rust** | Safety, Memory Management, & Speed |
+| **Agent Engine** | **Rig Framework** | Tool invocation & LLM orchestration |
+| **Local LLM** | **Ollama (Llama 3.2)** | Local inference & reasoning |
+| **Async Runtime** | **Tokio** | Non-blocking I/O for web & AI |
+| **CLI Parser** | **Clap** | Professional Command Line Interface |
 
-ollama pull llama3.2
-# Or any other model you prefer:
-# ollama pull deepseek-v3.2
-# ollama pull qwen3-coder
-Start Ollama:
+### 📁 Project Structure
+- `src/main.rs`: Application entry point & CLI logic.
+- `src/agent.rs`: Core Agent implementation & reasoning loops.
+- `src/tools.rs`: Web search tools & specialized scrapers.
+- `src/config.rs`: Environment & settings management.
 
-ollama serve
-Installation
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+- **Install Rust:** `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+- **Install Ollama:** Visit [ollama.ai](https://ollama.ai)
+- **Prepare Models:**
+  ```bash
+  ollama pull llama3.2
+  ollama serve
+
+2 - Installation
+```bash
 # Clone the repository
-git clone https://github.com/aarambh-darshan/ai-research-agent.git
-cd ai-research-agent
+git clone [https://github.com/AhmedHawash321/AI_Agent.git](https://github.com/AhmedHawash321/AI_Agent.git)
+
+# Navigate to the project folder
+cd AI_Agent
 
 # Copy environment template
 cp .env.example .env
 
 # Build the project
 cargo build --release
-Usage
-# Basic research query
-cargo run -- "What are the latest developments in Rust async runtime?"
+```
+3. Usage Examples
+```bash
+   # Deep Research (Default)
+cargo run -- "Latest trends in Rust WebAssembly 2026"
 
-# Quick search mode (no AI synthesis)
-cargo run --release -- --quick "Rust web frameworks 2024"
+# Quick Search (No AI Synthesis)
+cargo run -- --quick "Solidity security best practices"
 
-# Use a specific model
-cargo run -- --model deepseek-v3.2 "Machine learning in Rust"
+# Custom Model & Verbose Logging
+cargo run -- --model deepseek-v3.2 --verbose "Quantum computing status"
+```
 
-# Verbose output
-cargo run -- --verbose "WebAssembly trends"
-
-# Show help
-cargo run -- --help
-📁 Project Structure
-ai-research-agent/
-├── Cargo.toml          # Project dependencies and metadata
-├── .env.example        # Environment variable template
-├── README.md           # This file
-└── src/
-    ├── main.rs         # CLI entry point and application logic
-    ├── config.rs       # Configuration management
-    ├── agent.rs        # Research agent implementation
-    └── tools.rs        # Web search tool (DuckDuckGo)
-🔧 Configuration
-Edit .env to customize the agent:
-
-# Model to use (must be installed in Ollama)
-OLLAMA_MODEL=llama3.2
-
-# Ollama server URL
-OLLAMA_HOST=http://localhost:11434
-
-# Response creativity (0.0 = focused, 1.0 = creative)
-TEMPERATURE=0.7
-
-# Number of search results to analyze
-MAX_SEARCH_RESULTS=5
-
-# Logging level
-RUST_LOG=info
 🎓 Learning Rust Concepts
-This codebase demonstrates these Rust concepts with inline comments:
+This project is a practical guide to advanced Rust:
 
-Concept	File	Description
-Structs & Enums	config.rs	Data types and pattern matching
-Traits	tools.rs	Implementing the Rig Tool trait
-Ownership & Borrowing	agent.rs	Memory safety without GC
-Async/Await	agent.rs, tools.rs	Non-blocking I/O
-Error Handling	All files	Result, ? operator, anyhow
-Derive Macros	All files	Debug, Clone, Serialize
-Unit Tests	All files	The #[cfg(test)] pattern
-🛠️ Extending the Agent
-Adding a New Tool
-Create a new struct in tools.rs:
+✅ Async/Await: Handling concurrent web requests.
 
-pub struct MyNewTool {
-    // fields
-}
-Implement the Tool trait:
+✅ Error Handling: Using anyhow for apps and thiserror for tools.
 
-impl Tool for MyNewTool {
-    const NAME: &'static str = "my_tool";
-    // ... implement required methods
-}
-Register with the agent in agent.rs:
+✅ Traits: Implementing Rig's Tool trait for extensibility.
 
-let agent = client
-    .agent(&model)
-    .tool(web_search_tool)
-    .tool(my_new_tool)  // Add here
-    .build();
-Using Different Models
-Any Ollama-compatible model works:
+✅ Memory Safety: Ownership & Borrowing in complex agent states.
 
-ollama pull mistral
-ollama pull codellama
-ollama pull gemma2
-Then set OLLAMA_MODEL in .env or use --model flag.
+🔧 Configuration (.env)
+Customize your agent's behavior:
 
-🧪 Testing
-# Run all tests
-cargo test
+OLLAMA_MODEL: Default LLM (e.g., llama3.2).
 
-# Run with output
-cargo test -- --nocapture
+TEMPERATURE: Creativity level (0.0 - 1.0).
 
-# Run specific test
-cargo test test_config
-📊 Sample Output
-$ cargo run -- "What is WebAssembly?"
+MAX_SEARCH_RESULTS: How many sources to analyze.
 
-============================================================
-RESEARCH RESULTS
-============================================================
+🤝 Contributing & Troubleshooting
+Getting "Connection Refused"? Ensure ollama serve is running in the background.
 
-## Overview
-WebAssembly (Wasm) is a binary instruction format designed for...
+Want to add tools? Check src/tools.rs and implement the Tool trait for GitHub, PDFs, or Databases!
 
-## Key Findings
-1. **Performance**: Near-native execution speed...
-2. **Portability**: Runs on any platform with a Wasm runtime...
-3. **Security**: Sandboxed execution environment...
-
-## Sources
-- https://webassembly.org/
-- https://developer.mozilla.org/en-US/docs/WebAssembly
-- ...
-
-============================================================
-🐛 Troubleshooting
-"Connection refused" error
-Make sure Ollama is running:
-
-ollama serve
-"Model not found" error
-Pull the model first:
-
-ollama pull llama3.2
-Slow responses
-Try a smaller model: ollama pull gemma2:2b
-Check your hardware - LLMs need significant RAM/VRAM
-
-🙏 Acknowledgments
-Rig Framework - The Rust AI framework
-Ollama - Local LLM runner
-DuckDuckGo - Privacy-respecting search
-
-🤝 Contributing
-Contributions are welcome! If you have suggestions for new tools (e.g., GitHub search, PDF parsing), feel free to open an issue or a PR.
-
-Developed by Ahmad
-Backend Developer | Rust & Blockchain Enthusiast
+Developed by Ahmad Backend Developer | Rust & Blockchain Enthusiast
