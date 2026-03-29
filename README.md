@@ -18,59 +18,149 @@ This isn't just another LLM wrapper. It's a full **Agentic Workflow** that think
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🏗 Architecture
 
-ConceptWhere UsedAsync/Await + Tokioagent.rs, tools.rs — fully async pipelineTrait ImplementationTool trait from Rig — enables agent tool useCustom Error Typesthiserror in tools.rs — typed SearchError enumBox<dyn Error>Dynamic error handling across module boundariesStruct + implResearchAgent, Config, WebSearchTool#[derive(...)]Debug, Clone, Serialize, Deserialize, ParserBuilder Patternollama_client.agent().preamble().tool().build()Result<T, E>Every fallible function returns Result? OperatorClean error propagation without boilerplateEnvironment Variablesstd::env::var() + dotenvy for configOwnership in Async&self borrows, .clone() for tool sharingPattern Matchingmatch, if let, unwrap_or_elseIterators.map(), .filter(), .collect(), .enumerate()
+```
+ai-research-agent/
+├── src/
+│   ├── main.rs        # CLI entry point, argument parsing (clap)
+│   ├── agent.rs       # ResearchAgent — core LLM orchestration
+│   ├── config.rs      # Config struct with env var loading & validation
+│   └── tools.rs       # WebSearchTool — DuckDuckGo integration
+├── Cargo.toml
+└── README.md
+```
 
-⚙️ Tech Stack
-DependencyPurposerig-core 0.27LLM agent framework with tool supporttokioAsync runtimeollama (via rig)Local LLM inferencereqwestHTTP client for web searchclapCLI argument parsingserde / serde_jsonSerializationanyhowFlexible error handlingthiserrorTyped custom errorstracingStructured loggingdotenvy.env file loading
+### How It Works
 
-### 📁 Project Structure
-- `src/main.rs`: Application entry point & CLI logic.
-- `src/agent.rs`: Core Agent implementation & reasoning loops.
-- `src/tools.rs`: Web search tools & specialized scrapers.
-- `src/config.rs`: Environment & settings management.
+```
+User Query
+    ↓
+CLI (clap) parses arguments
+    ↓
+Config loads from .env / environment variables
+    ↓
+ResearchAgent initialized with Ollama client
+    ↓
+Agent calls WebSearchTool (DuckDuckGo)
+    ↓
+LLM synthesizes results into a summary
+    ↓
+Formatted output printed to terminal
+```
 
 ---
 
-## 🚀 Quick Start
+## 🛠 Features
 
-### 1. Prerequisites
-- **Install Rust:** `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- **Install Ollama:** Visit [ollama.ai](https://ollama.ai)
-- **Prepare Models:**
-  ```bash
-  ollama pull llama3.2
-  ollama serve
+- 🔍 **Web Search** — DuckDuckGo HTML scraping with multi-strategy parsing
+- 🧠 **LLM Synthesis** — Ollama local inference via Rig framework
+- ⚡ **Async/Await** — Fully non-blocking with Tokio runtime
+- 🛡 **Production Error Handling** — `anyhow` + `thiserror` for typed errors
+- ⚙️ **Environment Config** — `.env` support via `dotenvy`
+- 🖥 **Rich CLI** — `clap` with flags, env vars, and help text
+- 📊 **Structured Logging** — `tracing` + `tracing-subscriber`
+- 🧪 **Unit Tests** — Tests for Config, Tools, Agent, and CLI parsing
 
-2 - Installation
+---
+
+## 🧠 Key Rust Concepts Demonstrated
+
+| Concept | Where Used |
+|---|---|
+| **Async/Await + Tokio** | `agent.rs`, `tools.rs` — fully async pipeline |
+| **Trait Implementation** | `Tool` trait from Rig — enables agent tool use |
+| **Custom Error Types** | `thiserror` in `tools.rs` — typed `SearchError` enum |
+| **`Box<dyn Error>`** | Dynamic error handling across module boundaries |
+| **Struct + impl** | `ResearchAgent`, `Config`, `WebSearchTool` |
+| **`#[derive(...)]`** | `Debug`, `Clone`, `Serialize`, `Deserialize`, `Parser` |
+| **Builder Pattern** | `ollama_client.agent().preamble().tool().build()` |
+| **`Result<T, E>`** | Every fallible function returns `Result` |
+| **`?` Operator** | Clean error propagation without boilerplate |
+| **Environment Variables** | `std::env::var()` + `dotenvy` for config |
+| **Ownership in Async** | `&self` borrows, `.clone()` for tool sharing |
+| **Pattern Matching** | `match`, `if let`, `unwrap_or_else` |
+| **Iterators** | `.map()`, `.filter()`, `.collect()`, `.enumerate()` |
+
+---
+
+## ⚙️ Tech Stack
+
+| Dependency | Purpose |
+|---|---|
+| `rig-core 0.27` | LLM agent framework with tool support |
+| `tokio` | Async runtime |
+| `ollama` (via rig) | Local LLM inference |
+| `reqwest` | HTTP client for web search |
+| `clap` | CLI argument parsing |
+| `serde / serde_json` | Serialization |
+| `anyhow` | Flexible error handling |
+| `thiserror` | Typed custom errors |
+| `tracing` | Structured logging |
+| `dotenvy` | `.env` file loading |
+
+---
+
+## 🚀 How to Run
+
+### Prerequisites
+
+- Rust installed → [rustup.rs](https://rustup.rs)
+- Ollama installed → [ollama.ai](https://ollama.ai)
+
+### Setup
+
 ```bash
-# Clone the repository
-git clone [https://github.com/AhmedHawash321/AI_Agent.git](https://github.com/AhmedHawash321/AI_Agent.git)
+# 1. Clone the repo
+git clone https://github.com/AhmedHawash321/ai-research-agent.git
+cd ai-research-agent
 
-# Navigate to the project folder
-cd AI_Agent
+# 2. Pull the LLM model
+ollama pull llama3.2
 
-# Copy environment template
+# 3. Start Ollama server
+ollama serve
+
+# 4. Create .env file (optional)
 cp .env.example .env
 
-# Build the project
-cargo build --release
+# 5. Run the agent
+cargo run -- "What is the Rust ownership model?"
 ```
-3. Usage Examples
+
+### Environment Variables
+
+```env
+OLLAMA_MODEL=llama3.2
+OLLAMA_API_BASE_URL=http://localhost:11434
+TEMPERATURE=0.7
+MAX_SEARCH_RESULTS=5
+RUST_LOG=info
+```
+
+### CLI Options
+
 ```bash
-   # Deep Research (Default)
-cargo run -- "Latest trends in Rust WebAssembly 2026"
+# Full research (search + AI synthesis)
+cargo run -- "Your research topic"
 
-# Quick Search (No AI Synthesis)
-cargo run -- --quick "Solidity security best practices"
+# Quick search only (no AI synthesis)
+cargo run -- --quick "Your query"
 
-# Custom Model & Verbose Logging
-cargo run -- --model deepseek-v3.2 --verbose "Quantum computing status"
+# Verbose/debug logging
+cargo run -- --verbose "Your query"
+
+# Specify model
+cargo run -- --model llama3.2 "Your query"
 ```
-🔍 Code Highlights
-Tool Trait Implementation
-rustimpl Tool for WebSearchTool {
+
+---
+
+## 🔍 Code Highlights
+
+### Tool Trait Implementation
+```rust
+impl Tool for WebSearchTool {
     const NAME: &'static str = "web_search";
     type Args = SearchArgs;
     type Output = String;
@@ -81,10 +171,14 @@ rustimpl Tool for WebSearchTool {
         // format and return results...
     }
 }
-Implementing Rig's Tool trait makes the agent aware of the search capability — this is how LLMs learn to call external functions.
+```
+Implementing Rig's `Tool` trait makes the agent aware of the search capability — this is how LLMs learn to call external functions.
 
-Custom Error Types
-rust#[derive(Error, Debug)]
+---
+
+### Custom Error Types
+```rust
+#[derive(Error, Debug)]
 pub enum SearchError {
     #[error("Failed to perform web search: {0}")]
     SearchFailed(String),
@@ -95,10 +189,14 @@ pub enum SearchError {
     #[error("Network error: {0}")]
     NetworkError(#[from] reqwest::Error),
 }
+```
 Typed errors give the compiler full visibility into what can fail — making error handling exhaustive and self-documenting.
 
-Config Validation
-rustpub fn validate(&self) -> Result<()> {
+---
+
+### Config Validation
+```rust
+pub fn validate(&self) -> Result<()> {
     if !(0.0..=2.0).contains(&self.temperature) {
         anyhow::bail!("Temperature must be between 0.0 and 2.0");
     }
@@ -107,33 +205,45 @@ rustpub fn validate(&self) -> Result<()> {
     }
     Ok(())
 }
+```
 Validation runs before the agent starts — catching misconfiguration early.
 
-🧪 Tests
-bash# Run all tests
+---
+
+## 🧪 Tests
+
+```bash
+# Run all tests
 cargo test
 
 # Run with output
 cargo test -- --nocapture
+```
+
 Tests cover: Config defaults, Config validation, CLI argument parsing, Tool creation, Search result serialization, Domain extraction.
 
-📝 Learning Journey
+---
+
+## 📝 Learning Journey
+
 This project is part of my Rust learning path — focusing on real-world async systems and AI agent architecture.
-Rust Concepts Covered
 
- Ownership & Borrowing
- Async/Await with Tokio
- Trait implementation
- Custom error types with thiserror
- Builder pattern
- CLI tools with clap
- Environment configuration
- Structured logging with tracing
- Unit testing
- Lifetimes in async contexts
- Building REST APIs with Axum
- WebSocket connections
+### Rust Concepts Covered
+- [x] Ownership & Borrowing
+- [x] Async/Await with Tokio
+- [x] Trait implementation
+- [x] Custom error types with thiserror
+- [x] Builder pattern
+- [x] CLI tools with clap
+- [x] Environment configuration
+- [x] Structured logging with tracing
+- [x] Unit testing
+- [ ] Lifetimes in async contexts
+- [ ] Building REST APIs with Axum
+- [ ] WebSocket connections
 
+---
 
-📄 License
-This project is licensed under the MIT License.
+## 📄 License
+
+This project is licensed under the **MIT License**.
