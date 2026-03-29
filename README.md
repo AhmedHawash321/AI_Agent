@@ -20,13 +20,10 @@ This isn't just another LLM wrapper. It's a full **Agentic Workflow** that think
 
 ## 🛠️ Tech Stack & Architecture
 
-| Component | Technology | Role |
-| :--- | :--- | :--- |
-| **Language** | **Rust** | Safety, Memory Management, & Speed |
-| **Agent Engine** | **Rig Framework** | Tool invocation & LLM orchestration |
-| **Local LLM** | **Ollama (Llama 3.2)** | Local inference & reasoning |
-| **Async Runtime** | **Tokio** | Non-blocking I/O for web & AI |
-| **CLI Parser** | **Clap** | Professional Command Line Interface |
+ConceptWhere UsedAsync/Await + Tokioagent.rs, tools.rs — fully async pipelineTrait ImplementationTool trait from Rig — enables agent tool useCustom Error Typesthiserror in tools.rs — typed SearchError enumBox<dyn Error>Dynamic error handling across module boundariesStruct + implResearchAgent, Config, WebSearchTool#[derive(...)]Debug, Clone, Serialize, Deserialize, ParserBuilder Patternollama_client.agent().preamble().tool().build()Result<T, E>Every fallible function returns Result? OperatorClean error propagation without boilerplateEnvironment Variablesstd::env::var() + dotenvy for configOwnership in Async&self borrows, .clone() for tool sharingPattern Matchingmatch, if let, unwrap_or_elseIterators.map(), .filter(), .collect(), .enumerate()
+
+⚙️ Tech Stack
+DependencyPurposerig-core 0.27LLM agent framework with tool supporttokioAsync runtimeollama (via rig)Local LLM inferencereqwestHTTP client for web searchclapCLI argument parsingserde / serde_jsonSerializationanyhowFlexible error handlingthiserrorTyped custom errorstracingStructured loggingdotenvy.env file loading
 
 ### 📁 Project Structure
 - `src/main.rs`: Application entry point & CLI logic.
@@ -71,30 +68,72 @@ cargo run -- --quick "Solidity security best practices"
 # Custom Model & Verbose Logging
 cargo run -- --model deepseek-v3.2 --verbose "Quantum computing status"
 ```
+🔍 Code Highlights
+Tool Trait Implementation
+rustimpl Tool for WebSearchTool {
+    const NAME: &'static str = "web_search";
+    type Args = SearchArgs;
+    type Output = String;
+    type Error = SearchError;
 
-🎓 Learning Rust Concepts
-This project is a practical guide to advanced Rust:
+    async fn call(&self, args: Self::Args) -> Result<Self::Output, Self::Error> {
+        let results = self.search(&args.query).await?;
+        // format and return results...
+    }
+}
+Implementing Rig's Tool trait makes the agent aware of the search capability — this is how LLMs learn to call external functions.
 
-✅ Async/Await: Handling concurrent web requests.
+Custom Error Types
+rust#[derive(Error, Debug)]
+pub enum SearchError {
+    #[error("Failed to perform web search: {0}")]
+    SearchFailed(String),
 
-✅ Error Handling: Using anyhow for apps and thiserror for tools.
+    #[error("Rate limited by search provider")]
+    RateLimited,
 
-✅ Traits: Implementing Rig's Tool trait for extensibility.
+    #[error("Network error: {0}")]
+    NetworkError(#[from] reqwest::Error),
+}
+Typed errors give the compiler full visibility into what can fail — making error handling exhaustive and self-documenting.
 
-✅ Memory Safety: Ownership & Borrowing in complex agent states.
+Config Validation
+rustpub fn validate(&self) -> Result<()> {
+    if !(0.0..=2.0).contains(&self.temperature) {
+        anyhow::bail!("Temperature must be between 0.0 and 2.0");
+    }
+    if self.max_search_results == 0 {
+        anyhow::bail!("MAX_SEARCH_RESULTS must be at least 1");
+    }
+    Ok(())
+}
+Validation runs before the agent starts — catching misconfiguration early.
 
-🔧 Configuration (.env)
-Customize your agent's behavior:
+🧪 Tests
+bash# Run all tests
+cargo test
 
-OLLAMA_MODEL: Default LLM (e.g., llama3.2).
+# Run with output
+cargo test -- --nocapture
+Tests cover: Config defaults, Config validation, CLI argument parsing, Tool creation, Search result serialization, Domain extraction.
 
-TEMPERATURE: Creativity level (0.0 - 1.0).
+📝 Learning Journey
+This project is part of my Rust learning path — focusing on real-world async systems and AI agent architecture.
+Rust Concepts Covered
 
-MAX_SEARCH_RESULTS: How many sources to analyze.
+ Ownership & Borrowing
+ Async/Await with Tokio
+ Trait implementation
+ Custom error types with thiserror
+ Builder pattern
+ CLI tools with clap
+ Environment configuration
+ Structured logging with tracing
+ Unit testing
+ Lifetimes in async contexts
+ Building REST APIs with Axum
+ WebSocket connections
 
-🤝 Contributing & Troubleshooting
-Getting "Connection Refused"? Ensure ollama serve is running in the background.
 
-Want to add tools? Check src/tools.rs and implement the Tool trait for GitHub, PDFs, or Databases!
-
-Developed by Ahmad Backend Developer | Rust & Blockchain Enthusiast
+📄 License
+This project is licensed under the MIT License.
